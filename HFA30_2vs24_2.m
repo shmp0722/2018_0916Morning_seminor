@@ -138,9 +138,6 @@ displ_mm = 0.37*exp(-((ecc_mm-0.67)/1.12).^2);
 displ_deg = displ_mm/3.6;
 
 
-
-
-
 %%
 tp_new.Theta_all =  atan2(tp_new.x24_2c_x,tp_new.x24_2c_y); % angle of each test point
 tp_new.Theta_new =  atan2(tp_new.new_x,tp_new.new_y); % angle of each test point

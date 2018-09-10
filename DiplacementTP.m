@@ -156,7 +156,7 @@ ci = [0.6898, 0.5770, -0.1098];
 di = [0, 0.4841, 0.147];
 
 %% displacement from gcc leyer
-eccGCL = 0.1 : 0.1 : 5 ;%: 30;
+eccGCL = 0.1 : 0.01 : 5 ;%: 30;
 for ii  = 1 : length(eccGCL)
     
     % piecewise function depending on eccentricity
