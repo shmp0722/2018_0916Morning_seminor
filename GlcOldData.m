@@ -7,34 +7,60 @@ if notDefined('save')
 end
 
 %% load data
-pt = readtable('df_20171002_Turpin.csv');
+pt = readtable('df_pt.csv');
 norm = readtable('norm_20170918_Turpin.xlsx');
 
 tp = readtable('24-2cXYcoordinates.xlsx','Sheet',2);
 tp102 = readtable('10-2testpoint.csv');
-% %% Pick up lowest MD10-2 in each subject
-% ROWs = zeros(1, length(pt.ID));
-% ROWs    = logical(ROWs);
-% for m = 1 : length(pt.ID)
-%     for n = 1: length(pt.ID);
-%         rows(n) = strcmp(pt.ID(n), pt.ID(m));
-%         rows    = logical(rows);
-%     end
-% %     if sum(rows)>1;
-%         MinMD = pt.MD10_2(rows)==min(pt(rows, :).MD10_2);
-%         SameSub = find(rows);
-%         ROWs(SameSub)=MinMD; 
-% end
-% 
-% OneEach = pt(ROWs,:);
-% %% save table
-% if save == true;
-%     writetable(OneEach,'df_20171002_Turpin.csv');
-% end
-%%
-summary(pt)
 
-%%
+%% summarize the data sheets
+% summary(pt)
+
+% pt
+for ii = 1 : length(pt.disease)
+    poag(ii) = strcmp( pt.disease(ii) , 'POAG'); % 61
+    ntg(ii)  = strcmp( pt.disease(ii) , 'NTG'); % 68
+    
+end
+
+mean(pt.age)
+std(pt.age)
+
+mean(pt.age(poag))
+std(pt.age(poag))
+
+mean(pt.age(ntg))
+std(pt.age(ntg))
+
+
+
+clear poag ntg
+% pt.Gender
+for ii = 1 : length(pt.Gender)
+    poag(ii) = strcmp( pt.Gender(ii) , 'F'); % 61
+    ntg(ii)  = strcmp( pt.Gender(ii) , 'F'); % 68
+end
+sum(poag) % 44
+sum(ntg)  % 44
+
+%% normal
+for ii = 1 : length(norm.Gender)
+    poag(ii) = strcmp( norm.Gender(ii) , 'F'); % 61
+    
+end
+
+
+mean(norm.age)
+std(norm.age)
+
+mean([norm.age; pt.age])
+std([norm.age; pt.age])
+
+std(norm.age)
+% summary(norm)
+
+%%%%%%%% GO TO %%%%%%%%%%%
+%% Correlation coffecient
 newtp = [8,12,13,16,27,36,53,56,66,68];
 
 %% correlation coefficient MD vs TD
@@ -44,12 +70,12 @@ for ii = newtp;
     TD =  pt.(sprintf('P%d', ii));
     
     NoTP = newtp==ii;
-    RHO =  num2str( corr(pt.MD10_2, TD));
+    R =  num2str( corr(pt.MD10_2, TD));
     plot(tp.new_x(NoTP), tp.new_y(NoTP), 'sr', 'MarkerFace' ,'r' )
     
-    STR = num2str(RHO);
+    STR = num2str(R);
 
-    text(tp.new_x(NoTP), tp.new_y(NoTP)+0.2, RHO(1:4) ,'FontSize',14 )
+    text(tp.new_x(NoTP), tp.new_y(NoTP)+0.2, R(1:4) ,'FontSize',14 )
 end
 
 title('correlation coefficient MD vs TD' )
@@ -58,9 +84,188 @@ axis equal
 set(gca,'XLim',[-11,11],'YLim',[-11,11])
 
 if save == true;
-    saveas(gca, 'CorrCoef_MDvsTD.png' )
+    saveas(gca, 'figure/CorrCoef_MDvsTD_NewTP.png' )
+end
+clear TD RHO R
+%% correlation coefficient MD vs TD
+% figure; hold on;
+
+for ii = 1:68;
+    TD =  pt.(sprintf('P%d', ii));
+    
+%     NoTP = newtp==ii;
+    R(ii) =  corr(pt.MD10_2, TD);
 end
 
+% figure;
+% h = histogram(R);
+[n, edges] = histcounts(R);
+c = jet(length(n));
+
+figure;
+hold on;
+for kk = 1 :length(n) 
+    noOFtp = find( R >= edges(kk) & R <= edges(kk+1));
+    
+    for ii = noOFtp;
+        scatter(tp102.x(ii), tp102.y(ii),130 , c(kk, :), 'fill' ) % default 36
+        
+        %     plot(tp102.x(ii), tp102.y(ii), 'sr', 'MarkerFace' ,'r' )
+        STR = num2str(R(ii));
+        text(tp102.x(ii), tp102.y(ii)+0.2, STR(1:4) ,'FontSize',14 )
+    end
+end
+
+title('correlation coefficient MD vs each TD' )
+set(gca, 'FontSize',18)
+
+axis equal
+set(gca,'XLim',[-11,11],'YLim',[-11,11])
+
+
+% cb = colorbar('jet');
+% cb.Ticks = edges;
+% cb.TicksMode
+
+if save == true;
+    saveas(gca, 'figure/CorrCoef_MDvsTD_full_colored.png' )
+end
+
+%% new tp only
+% correlation coefficient MD vs TD
+figure; hold on;
+
+for kk = 1 :length(n) 
+    noOFtp = find( R >= edges(kk) & R <= edges(kk+1));
+%     noOFtp =  R >= edges(kk) & R <= edges(kk+1);
+
+    if  sum (ismember(newtp,noOFtp)) >0
+        for ii = newtp(ismember(newtp,noOFtp));
+            scatter(tp102.x(ii), tp102.y(ii),108 , c(kk, :), 'fill' ) % default 36
+            
+            %     plot(tp102.x(ii), tp102.y(ii), 'sr', 'MarkerFace' ,'r' )
+            STR = num2str(R(ii));
+            text(tp102.x(ii), tp102.y(ii)+0.2, STR(1:4) ,'FontSize',14 )
+        end
+    end
+end
+
+title('correlation coefficient MD vs each TD' )
+set(gca, 'FontSize',18)
+
+axis equal
+set(gca,'XLim',[-11,11],'YLim',[-11,11])
+
+if save == true;
+    saveas(gca, 'figure/CorrCoef_MDvsTD_new_colored.png' )
+end
+%% corr coeff between MD10-2 and mean TDnew
+
+for ii = 1:68;
+    TD =  pt.(sprintf('P%d', ii));
+    
+%     NoTP = newtp==ii;
+    R(ii) =  corr(pt.MD10_2, TD);
+end
+
+mTD68 =  meanTD;
+
+figure; hold on;
+% scatter(mTD68, pt.MD10_2)
+
+
+% newtp
+TD =[];
+for ii = newtp
+TD(:,ii) =  pt.(sprintf('P%d', ii));
+end
+TDnew = [pt.P8, pt.P12, pt.P13, pt.P16,pt.P27,pt.P36, pt.P53, pt.P56, pt.P66, pt.P68];
+
+scatter( mean(TDnew,2), pt.MD10_2)
+xlabel 'mean TDnew'
+ylabel 'MD10-2'
+
+lsline
+mdl = fitlm(mean(TDnew,2), pt.MD10_2);
+axis equal
+text(5,-5, ['R^2 =' ,num2str(mdl.Rsquared.Ordinary)] )
+
+if save ==1 
+    saveas(gca, 'figure/CorrCoeff_meanTDvsMD10-2.png')
+end
+%%
+% for ii = newtp;
+%     TD =  pt.(sprintf('P%d', ii));
+%     
+%     NoTP = newtp==ii;
+%     R =  num2str( corr(pt.MD10_2, TD));
+%     plot(tp.new_x(NoTP), tp.new_y(NoTP), 'sr', 'MarkerFace' ,'r' )
+%     
+%     STR = num2str(R);
+% 
+%     text(tp.new_x(NoTP), tp.new_y(NoTP)+0.2, R(1:4) ,'FontSize',14 )
+% end
+
+title('correlation coefficient MD vs TD' )
+set(gca, 'FontSize',18)
+axis equal
+set(gca,'XLim',[-11,11],'YLim',[-11,11])
+
+if save == true;
+    saveas(gca, 'figure/CorrCoef_MDvsTD_NewTP.png' )
+end
+clear TD RHO R
+
+%% correlation coefficient MD vs TD
+figure; hold on;
+
+for ii = newtp;
+    TD =  pt.(sprintf('P%d', ii));
+    
+    NoTP = newtp==ii;
+    R =  num2str( corr(pt.MD10_2, TD));
+    plot(tp.new_x(NoTP), tp.new_y(NoTP), 'sr', 'MarkerFace' ,'r' )
+    
+    STR = num2str(R);
+
+    text(tp.new_x(NoTP), tp.new_y(NoTP)+0.2, R(1:4) ,'FontSize',14 )
+end
+
+
+title('correlation coefficient MD vs TD' )
+set(gca, 'FontSize',18)
+axis equal
+set(gca,'XLim',[-11,11],'YLim',[-11,11])
+
+%%%%%%%%%
+%%%%%%%%%
+%% correlation coefficient MD vs TD
+figure; hold on;
+c = jet(5);
+
+for ii = newtp;
+    TD =  pt.(sprintf('P%d', ii));
+    
+    NoTP = newtp==ii;
+    R =  num2str( corr(pt.MD10_2, TD));
+    if R <0.5
+        
+    plot(tp.new_x(NoTP), tp.new_y(NoTP), 'sr', 'MarkerFace' ,c(1,:) )
+    end
+    STR = num2str(R);
+
+    text(tp.new_x(NoTP), tp.new_y(NoTP)+0.2, R(1:4) ,'FontSize',14 )
+end
+
+title('correlation coefficient MD vs TD' )
+set(gca, 'FontSize',18)
+axis equal
+set(gca,'XLim',[-11,11],'YLim',[-11,11])
+
+if save == true;
+    saveas(gca, 'figure/CorrCoef_MDvsTD_NewTP.png' )
+end
+clear TD RHO
 %% correlation coefficient MD vs TD
 figure; hold on;
 
@@ -68,12 +273,12 @@ for ii = 1:68;
     TD =  pt.(sprintf('P%d', ii));
     
 %     NoTP = newtp==ii;
-    RHO(ii) =  corr(pt.MD10_2, TD);
+    R(ii) =  corr(pt.MD10_2, TD);
 % end
 
 % for ii = 1:68;
     plot(tp102.x(ii), tp102.y(ii), 'sr', 'MarkerFace' ,'r' )
-    STR = num2str(RHO(ii));
+    STR = num2str(R(ii));
     text(tp102.x(ii), tp102.y(ii)+0.2, STR(1:4) ,'FontSize',14 )
 end
 
@@ -85,10 +290,13 @@ set(gca,'XLim',[-11,11],'YLim',[-11,11])
 
 
 if save == true;
-    saveas(gca, 'CorrCoef_MDvsTD_full.png' )
+    saveas(gca, 'figure/CorrCoef_MDvsTD_full.png' )
 end
+
+
+
 %%
-cmap = jet( length(RHO))
+cmap = jet( length(R))
 title('correlation coefficient MD vs TD' )
 set(gca, 'FontSize',18)
 
@@ -100,7 +308,7 @@ end
 
 %%
 figure 
-plot( RHO)
+plot( R)
 
  c = jet(kk); % set colors
     X = 1:8; % 64 grids

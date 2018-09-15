@@ -24,11 +24,12 @@ figure; hold on;
 
 axis equal
 axis on
+set(gca, 'XLim',[-11 11],'YLim',[-11 11])
 %     grid on
 %     Grid = -12:3:12;
 %     set(gca,'XTick',Grid)
 %     set(gca,'YTick',Grid)
-
+saveas(gca, 'figure/10-2.png')
 %% 10-2 new only
 figure; hold on;
 % for ii = 1: length(tp_10.x)

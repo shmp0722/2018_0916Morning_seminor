@@ -37,7 +37,7 @@ axis square
 title 'Conventinal test point'
 set(gca, 'FontSize',18)
 %%
-saveas(gca, fullfile(pwd,'/Figure','ConventionalTestPoint.png'))
+saveas(gca, fullfile(pwd,'figure','ConventionalTestPoint.png'))
 
 %% Sj?strand J. Graefe?s Arch Clin Exp Ophthalmol 1999
 % x = Cone ecc [mm]
@@ -118,7 +118,7 @@ title 'Sjostrand model'
 set(gca,'FontSize',18)
 
 %%
-saveas(gca, fullfile(pwd,'Figure/SjostrandModel.png'))
+saveas(gca, fullfile(pwd,'figure/SjostrandModel.png'))
 
 %% Sjostrand J. Graefe?s Arch Clin Exp Ophthalmol 1999
 % x = Cone ecc [mm]

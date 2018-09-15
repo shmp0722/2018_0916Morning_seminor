@@ -4,8 +4,6 @@ function DisplacemantTP_Zeiss
 %%
 tp  = readtable('10-2testpoint.csv');
 
-
-
 %% Drasdo model
 % Drasdo N. "The length of Henle fibers in the human retina and a model of
 % ganglion receptive field density in the visual field."
